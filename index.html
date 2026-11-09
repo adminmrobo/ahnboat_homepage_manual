@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>홈페이지 운영 매뉴얼 · Reon Ahn's page</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500;700&display=swap">
+<style>
+:root{--bg:#fff;--paper:#fbfaf7;--ink:#1f2224;--muted:#5f6663;--line:#1f2224;--pink-soft:#fbe9f0;--sun:#e0a92a;--sun-soft:#fbf1d8;
+  --font:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 1px 1px,#e9e5dc 1px,transparent 1.5px) 0 0/18px 18px,var(--paper);color:var(--ink);font-family:var(--font);line-height:1.6;word-break:keep-all;padding:16px}
+.box{width:min(460px,100%);border:2px solid var(--line);border-radius:22px;background:#fff;box-shadow:6px 6px 0 var(--line);padding:24px 22px}
+.kicker{display:inline-block;font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;border:1.5px solid var(--line);border-radius:99px;padding:3px 10px;margin:0 0 10px}
+h1{margin:0;font-size:1.6rem;line-height:1.2}
+.say{display:flex;gap:12px;align-items:flex-start;margin:16px 0}
+.say img{flex:none;width:64px;height:64px;border-radius:14px;border:2px solid var(--line);object-fit:cover}
+.bub{flex:1;border:2px solid var(--line);border-radius:4px 14px 14px 14px;background:var(--pink-soft);padding:8px 12px;font-size:.94rem}
+.bub b{display:block;font-size:.74rem;color:var(--muted)}
+.say.fly .bub{background:var(--sun-soft)}
+form{display:flex;gap:8px}
+input{flex:1;min-width:0;font:inherit;border:2px solid var(--line);border-radius:12px;padding:9px 12px}
+button{font:inherit;font-weight:700;cursor:pointer;border:2px solid var(--line);border-radius:12px;background:var(--sun);padding:0 16px;box-shadow:3px 3px 0 var(--line)}
+button:disabled{opacity:.6;cursor:wait}
+.foot{margin:16px 0 0;font-size:.78rem;color:var(--muted)}
+.foot a{color:inherit}
+</style>
+</head>
+<body>
+<main class="box">
+  <p class="kicker">AHNBOAT LAB · MANUAL</p>
+  <h1>홈페이지 운영 매뉴얼</h1>
+  <div class="say" id="say"><img id="face" src="img/face/haru_E13.webp" alt=""><div class="bub"><b id="who">조수 하루</b><span id="msg">연구실 관리자용 매뉴얼이에요. 비밀번호를 넣어 주세요.</span></div></div>
+  <form id="f">
+    <input id="pw" type="password" autocomplete="current-password" aria-label="비밀번호" placeholder="비밀번호" required>
+    <button id="go" type="submit">열기</button>
+  </form>
+  <p class="foot">© 2026 안상선 · <a href="https://ahnboat.xyz/">ahnboat.xyz</a></p>
+</main>
+<script>
+(function(){
+  'use strict';
+  var BLOB=null;
+  function $(i){return document.getElementById(i);}
+  function talk(face,who,txt,fly){$('face').src='img/face/'+face+'.webp';$('who').textContent=who;$('msg').textContent=txt;$('say').classList.toggle('fly',!!fly);}
+  function b64d(s){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
+  fetch('manual.enc',{cache:'no-cache'}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(o){BLOB=o;})
+    .catch(function(){talk('fruitfly_E09','초파리 연구원','아직 잠긴 매뉴얼 파일(manual.enc)이 올라오지 않았어요.',true);$('go').disabled=true;});
+  if(!(window.crypto&&crypto.subtle)){talk('fruitfly_E09','초파리 연구원','이 브라우저에서는 매뉴얼을 열 수 없어요. 최신 브라우저로 열어 주세요.',true);}
+  $('f').addEventListener('submit',function(e){
+    e.preventDefault();if(!BLOB)return;var pass=$('pw').value;$('go').disabled=true;talk('jupanbot_E07','주판봇','딸깍딸깍, 확인하는 중입니다…');
+    var enc=new TextEncoder();
+    crypto.subtle.importKey('raw',enc.encode(pass),'PBKDF2',false,['deriveKey']).then(function(base){
+      return crypto.subtle.deriveKey({name:'PBKDF2',hash:'SHA-256',salt:b64d(BLOB.salt),iterations:BLOB.iter},base,{name:'AES-GCM',length:256},false,['decrypt']);})
+    .then(function(k){return crypto.subtle.decrypt({name:'AES-GCM',iv:b64d(BLOB.iv)},k,b64d(BLOB.ct));})
+    .then(function(buf){var html=new TextDecoder().decode(buf);document.open();document.write(html);document.close();})
+    .catch(function(){$('go').disabled=false;$('pw').select();talk('fruitfly_E09','초파리 연구원','음… 비밀번호가 맞지 않아요. 다시 넣어 볼까요?',true);});
+  });
+})();
+</script>
+</body>
+</html>

@@ -2,7 +2,9 @@
 
 박사 · 조수 하루 · 주판봇 · 초파리 연구원이 안내하는 [ahnboat.xyz](https://ahnboat.xyz/) 운영 매뉴얼입니다.
 
-**매뉴얼 보기:** https://adminmrobo.github.io/ahnboat_homepage_manual/
+**매뉴얼 보기:** https://adminmrobo.github.io/ahnboat_homepage_manual/ (관리자 비밀번호가 필요합니다)
+
+내용은 `manual.enc`에 AES-256-GCM으로 잠겨 있고, 브라우저에서 비밀번호를 넣으면 풀립니다. 잠기기 전 원문과 잠금 도구는 저장소에 올리지 않습니다.
 
 | 장 | 내용 |
 |---|---|
